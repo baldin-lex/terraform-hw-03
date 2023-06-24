@@ -16,6 +16,38 @@
 ### Задание 2
 
 1. Создайте файл count-vm.tf. Опишите в нем создание двух **одинаковых** ВМ  web-1 и web-2(не web-0 и web-1!), с минимальными параметрами, используя мета-аргумент **count loop**. Назначьте ВМ созданную в 1-м задании группу безопасности.
+
+```bash
+resource "yandex_compute_instance" "web" {
+  count = 2
+  name = "develop-web-${count.index}"
+  resources {
+    cores         = 2
+    memory        = 2
+    core_fraction = 20
+  }
+
+  boot_disk {
+    initialize_params {
+      image_id = "fd8g64rcu9fq5kpfqls0"
+    }
+  }
+
+  network_interface {
+    subnet_id = yandex_vpc_subnet.develop.id
+    nat       = true
+  }
+
+  metadata = {
+    ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
+  }
+}
+```
+![terraform_03_02](jpeg/2-1-1.jpg)
+
+![terraform_03_02](jpeg/2-1-2.jpg)
+
+---
 2. Создайте файл for_each-vm.tf. Опишите в нем создание 2 ВМ с именами "main" и "replica" **разных** по cpu/ram/disk , используя мета-аргумент **for_each loop**. Используйте переменную типа list(object({ vm_name=string, cpu=number, ram=number, disk=number  })). При желании внесите в переменную все возможные параметры.
 3. ВМ из пункта 2.2 должны создаваться после создания ВМ из пункта 2.1.
 4. Используйте функцию file в local переменной для считывания ключа ~/.ssh/id_rsa.pub и его последующего использования в блоке metadata, взятому из ДЗ №2.
