@@ -20,7 +20,7 @@
 ```bash
 resource "yandex_compute_instance" "web" {
   count = 2
-  name = "develop-web-${count.index}"
+  name = "develop-web-${count.index + 1}"
   resources {
     cores         = 2
     memory        = 1
@@ -45,7 +45,7 @@ resource "yandex_compute_instance" "web" {
 ```
 ![terraform_03_02](jpeg/2-1-1.jpg)
 
-![terraform_03_02](jpeg/2-1-2.jpg)
+![terraform_03_02](jpeg/2-1-2_2.jpg)
 
 ---
 2. Создайте файл for_each-vm.tf. Опишите в нем создание 2 ВМ с именами "main" и "replica" **разных** по cpu/ram/disk , используя мета-аргумент **for_each loop**. Используйте переменную типа list(object({ vm_name=string, cpu=number, ram=number, disk=number  })). При желании внесите в переменную все возможные параметры.
