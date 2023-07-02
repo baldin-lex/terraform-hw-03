@@ -47,9 +47,52 @@ resource "yandex_compute_instance" "web" {
 
 ![terraform_03_02](jpeg/2-1-2_2.jpg)
 
----
 2. Создайте файл for_each-vm.tf. Опишите в нем создание 2 ВМ с именами "main" и "replica" **разных** по cpu/ram/disk , используя мета-аргумент **for_each loop**. Используйте переменную типа list(object({ vm_name=string, cpu=number, ram=number, disk=number  })). При желании внесите в переменную все возможные параметры.
+
+> *Часть `for_each-vm.tf` с использованием `for_each loop`:*
+```bash
+resource "yandex_compute_instance" "fe_instance" {
+
+depends_on = [ yandex_compute_instance.web ]
+
+  for_each = { for vm in local.vms_fe: "${vm.vm_name}" => vm }
+  name = each.key
+  platform_id = "standard-v1"
+  resources {
+     cores         = each.value.cpu
+     memory        = each.value.ram
+     core_fraction = each.value.frac
+  }
+```
+
+   > *Переменная:*
+
+```bash
+locals {
+  vms_fe = [
+    { 
+       vm_name = "main"
+       cpu     = 4
+       ram     = 4
+       frac    = 20
+    },
+    {
+       vm_name = "replica"
+       cpu     = 2
+       ram     = 2
+       frac    = 100
+    }
+  ] 
+}
+```
+
 3. ВМ из пункта 2.2 должны создаваться после создания ВМ из пункта 2.1.
+
+> *Созданные в указанном порядке ВМ:*
+![terraform_03_02](jpeg/2-2-1.jpg)
+
+> *Для этого использовал аргумент `depends_on = [ yandex_compute_instance.web ]`*
+
 4. Используйте функцию file в local переменной для считывания ключа ~/.ssh/id_rsa.pub и его последующего использования в блоке metadata, взятому из ДЗ №2.
 5. Инициализируйте проект, выполните код.
 
