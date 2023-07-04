@@ -494,7 +494,7 @@ Apply complete! Resources: 7 added, 0 changed, 0 destroyed.
 1. Создайте 3 одинаковых виртуальных диска, размером 1 Гб с помощью ресурса yandex_compute_disk и мета-аргумента count в файле **disk_vm.tf** .
 
 ```bash
-resource "yandex_compute_disk" "count_disk" {
+resource "yandex_compute_disk" "stor" {
   count   = 3
   name    = "disk-${count.index + 1}"
   size    = 1
@@ -503,7 +503,15 @@ resource "yandex_compute_disk" "count_disk" {
 
 2. Создайте в том же файле одну ВМ c именем "storage" . Используйте блок **dynamic secondary_disk{..}** и мета-аргумент for_each для подключения созданных вами дополнительных дисков.
 
-
+```bash
+dynamic "secondary_disk" {
+  for_each = "${yandex_compute_disk.stor.*.id}"
+  content {
+    disk_id = yandex_compute_disk.stor["${secondary_disk.key}"].id
+  }
+}
+```
+![terraform_03_02](jpeg/3-2.jpg)
 
 ------
 
